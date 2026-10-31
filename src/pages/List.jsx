@@ -2,6 +2,7 @@ import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { backendUrl, currency } from '../App'
 import { toast } from 'react-toastify'
+import { assets } from '../assets/assets'
 
 const List = ({ token }) => {
 
@@ -11,6 +12,8 @@ const List = ({ token }) => {
   const [editOriginalPrice, setEditOriginalPrice] = useState('')
   const [editInStock, setEditInStock] = useState(true)
   const [editFeatures, setEditFeatures] = useState('')
+  const [editCategory, setEditCategory] = useState('')
+  const [editImages, setEditImages] = useState([])
 
   const fetchList = async () => {
     try {
@@ -45,17 +48,25 @@ const List = ({ token }) => {
     setEditOriginalPrice(item.originalPrice || '')
     setEditInStock(item.inStock !== false)
     setEditFeatures(Array.isArray(item.features) ? item.features.join(', ') : '')
+    setEditCategory(item.category || '')
+    const existing = (item.image || []).slice(0, 8).map((url) => ({ url, file: null }))
+    while (existing.length < 8) existing.push({ url: null, file: null })
+    setEditImages(existing)
   }
 
   const saveUpdate = async () => {
     try {
-      const response = await axios.post(backendUrl + '/api/product/update', {
-        id: editItem._id,
-        price: editPrice,
-        originalPrice: editOriginalPrice,
-        inStock: editInStock,
-        features: editFeatures
-      }, { headers: { token } })
+      const formData = new FormData()
+      formData.append('id', editItem._id)
+      formData.append('price', editPrice)
+      formData.append('originalPrice', editOriginalPrice)
+      formData.append('inStock', editInStock)
+      formData.append('features', editFeatures)
+      formData.append('category', editCategory)
+      formData.append('existingImages', JSON.stringify(editImages.map((slot) => slot.url || null)))
+      editImages.forEach((slot, index) => slot.file && formData.append(`image${index + 1}`, slot.file))
+
+      const response = await axios.post(backendUrl + '/api/product/update', formData, { headers: { token } })
 
       if (response.data.success) {
         toast.success('Product updated')
@@ -121,10 +132,48 @@ const List = ({ token }) => {
       {/* Update Modal */}
       {editItem && (
         <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50'>
-          <div className='bg-white rounded-lg p-6 w-full max-w-md shadow-xl'>
+          <div className='bg-white rounded-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl'>
             <h3 className='text-lg font-semibold mb-4'>Update: {editItem.name}</h3>
 
             <div className='flex flex-col gap-3'>
+              <div>
+                <label className='text-sm text-gray-600 mb-1 block'>Images <span className='text-gray-400'>(click a slot to replace it)</span></label>
+                <div className='grid grid-cols-4 gap-2'>
+                  {editImages.map((slot, index) => (
+                    <label key={index} htmlFor={`edit-image${index + 1}`} className='cursor-pointer'>
+                      <img
+                        className='w-full aspect-square object-cover rounded border bg-gray-50'
+                        src={slot.file ? URL.createObjectURL(slot.file) : (slot.url || assets.upload_area)}
+                        alt=''
+                      />
+                      <input
+                        type='file'
+                        id={`edit-image${index + 1}`}
+                        hidden
+                        onChange={(e) => setEditImages(prev => prev.map((item, i) => i === index ? { url: item.url, file: e.target.files[0] } : item))}
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className='text-sm text-gray-600 mb-1 block'>Product Category</label>
+                <select
+                  value={editCategory}
+                  onChange={e => setEditCategory(e.target.value)}
+                  className='w-full border px-3 py-2 rounded text-sm'
+                >
+                  <option value='Face Care'>Face Care</option>
+                  <option value='Hair Care'>Hair Care</option>
+                  <option value='Skin Care'>Skin Care</option>
+                  <option value='Bundle'>Bundle</option>
+                  {!['Face Care', 'Hair Care', 'Skin Care', 'Bundle'].includes(editCategory) && editCategory && (
+                    <option value={editCategory}>{editCategory}</option>
+                  )}
+                </select>
+              </div>
+
               <div>
                 <label className='text-sm text-gray-600 mb-1 block'>Sale Price</label>
                 <input
