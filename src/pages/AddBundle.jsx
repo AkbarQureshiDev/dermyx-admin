@@ -98,7 +98,7 @@ const AddBundle = ({ token }) => {
           <p className='mb-2'>Product category</p>
           <select onChange={(e) => setCategory(e.target.value)} value={category} className='w-full px-3 py-2'>
             <option value="Bundle">Bundle</option>
-            <option value="Face Care">Face Care</option>
+            <option value="Face Beauty">Face Beauty</option>
             <option value="Hair Care">Hair Care</option>
             <option value="Skin Care">Skin Care</option>
           </select>

@@ -46,6 +46,13 @@ const Sidebar = () => {
           <p className='hidden md:block'>Reviews</p>
         </NavLink>
 
+        <NavLink className={linkClass} to="/coupons">
+          <svg className='w-5 h-5 text-pink-500' viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'>
+            <path d='M21.41 11.58l-9-9A2 2 0 0011 2H4a2 2 0 00-2 2v7c0 .53.21 1.04.59 1.41l9 9a2 2 0 002.82 0l7-7a2 2 0 000-2.83zM6.5 8A1.5 1.5 0 118 6.5 1.5 1.5 0 016.5 8z' />
+          </svg>
+          <p className='hidden md:block'>Discount Codes</p>
+        </NavLink>
+
       </div>
     </div>
   )

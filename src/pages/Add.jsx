@@ -12,7 +12,7 @@ const Add = ({token}) => {
    const [description, setDescription] = useState("");
    const [price, setPrice] = useState("");
    const [originalPrice, setOriginalPrice] = useState("");
-   const [category, setCategory] = useState("Face Care");
+   const [category, setCategory] = useState("Face Beauty");
    const [bestseller, setBestseller] = useState(false);
    const [features, setFeatures] = useState("");
 
@@ -95,7 +95,7 @@ const Add = ({token}) => {
             <div>
               <p className='mb-2'>Product category</p>
               <select onChange={(e) => setCategory(e.target.value)} className='w-full px-3 py-2'>
-                  <option value="Face Care">Face Care</option>
+                  <option value="Face Beauty">Face Beauty</option>
                   <option value="Hair Care">Hair Care</option>
                   <option value="Skin Care">Skin Care</option>
               </select>

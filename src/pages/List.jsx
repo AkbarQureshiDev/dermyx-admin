@@ -164,11 +164,11 @@ const List = ({ token }) => {
                   onChange={e => setEditCategory(e.target.value)}
                   className='w-full border px-3 py-2 rounded text-sm'
                 >
-                  <option value='Face Care'>Face Care</option>
+                  <option value='Face Beauty'>Face Beauty</option>
                   <option value='Hair Care'>Hair Care</option>
                   <option value='Skin Care'>Skin Care</option>
                   <option value='Bundle'>Bundle</option>
-                  {!['Face Care', 'Hair Care', 'Skin Care', 'Bundle'].includes(editCategory) && editCategory && (
+                  {!['Face Beauty', 'Hair Care', 'Skin Care', 'Bundle'].includes(editCategory) && editCategory && (
                     <option value={editCategory}>{editCategory}</option>
                   )}
                 </select>
