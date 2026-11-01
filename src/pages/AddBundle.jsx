@@ -13,6 +13,7 @@ const AddBundle = ({ token }) => {
   const [price, setPrice] = useState("")
   const [originalPrice, setOriginalPrice] = useState("")
   const [features, setFeatures] = useState("")
+  const [ingredients, setIngredients] = useState("")
   const [category, setCategory] = useState("Bundle")
 
   const resetForm = () => {
@@ -22,6 +23,7 @@ const AddBundle = ({ token }) => {
     setPrice('')
     setOriginalPrice('')
     setFeatures('')
+    setIngredients('')
     setCategory('Bundle')
   }
 
@@ -39,6 +41,7 @@ const AddBundle = ({ token }) => {
       formData.append("sizes", JSON.stringify([]))
       formData.append("tags", "bundle")
       formData.append("features", features)
+      formData.append("ingredients", ingredients)
 
       images.forEach((img, index) => img && formData.append(`image${index + 1}`, img))
 
@@ -86,6 +89,11 @@ const AddBundle = ({ token }) => {
       <div className='w-full'>
         <p className='mb-2'>Product description</p>
         <textarea onChange={(e) => setDescription(e.target.value)} value={description} className='w-full max-w-[500px] px-3 py-2' placeholder='Write content here' required />
+      </div>
+
+      <div className='w-full'>
+        <p className='mb-2'>Add Ingredients <span className='text-gray-400 text-xs'>(optional, one per line or comma separated)</span></p>
+        <textarea onChange={(e) => setIngredients(e.target.value)} value={ingredients} maxLength={2000} rows={3} className='w-full max-w-[500px] px-3 py-2' placeholder='Aqua, Glycerin, Niacinamide, Salicylic Acid' />
       </div>
 
       <div className='w-full'>

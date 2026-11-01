@@ -12,6 +12,7 @@ const List = ({ token }) => {
   const [editOriginalPrice, setEditOriginalPrice] = useState('')
   const [editInStock, setEditInStock] = useState(true)
   const [editFeatures, setEditFeatures] = useState('')
+  const [editIngredients, setEditIngredients] = useState('')
   const [editCategory, setEditCategory] = useState('')
   const [editImages, setEditImages] = useState([])
 
@@ -48,6 +49,7 @@ const List = ({ token }) => {
     setEditOriginalPrice(item.originalPrice || '')
     setEditInStock(item.inStock !== false)
     setEditFeatures(Array.isArray(item.features) ? item.features.join(', ') : '')
+    setEditIngredients(item.ingredients || '')
     setEditCategory(item.category || '')
     const existing = (item.image || []).slice(0, 8).map((url) => ({ url, file: null }))
     while (existing.length < 8) existing.push({ url: null, file: null })
@@ -62,6 +64,7 @@ const List = ({ token }) => {
       formData.append('originalPrice', editOriginalPrice)
       formData.append('inStock', editInStock)
       formData.append('features', editFeatures)
+      formData.append('ingredients', editIngredients)
       formData.append('category', editCategory)
       formData.append('existingImages', JSON.stringify(editImages.map((slot) => slot.url || null)))
       editImages.forEach((slot, index) => slot.file && formData.append(`image${index + 1}`, slot.file))
@@ -204,6 +207,18 @@ const List = ({ token }) => {
                   onChange={e => setEditFeatures(e.target.value)}
                   className='w-full border px-3 py-2 rounded text-sm'
                   placeholder='Dermatologically Tested, All Skin Types'
+                />
+              </div>
+
+              <div>
+                <label className='text-sm text-gray-600 mb-2 block'>Ingredients <span className='text-gray-400'>(optional, one per line or comma separated)</span></label>
+                <textarea
+                  value={editIngredients}
+                  onChange={e => setEditIngredients(e.target.value)}
+                  maxLength={2000}
+                  rows={3}
+                  className='w-full border px-3 py-2 rounded text-sm'
+                  placeholder='Aqua, Glycerin, Niacinamide'
                 />
               </div>
 

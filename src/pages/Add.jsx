@@ -15,6 +15,7 @@ const Add = ({token}) => {
    const [category, setCategory] = useState("Face Beauty");
    const [bestseller, setBestseller] = useState(false);
    const [features, setFeatures] = useState("");
+   const [ingredients, setIngredients] = useState("");
 
    const onSubmitHandler = async (e) => {
     e.preventDefault();
@@ -32,6 +33,7 @@ const Add = ({token}) => {
       formData.append("bestseller",bestseller)
       formData.append("sizes",JSON.stringify([]))
       formData.append("features",features)
+      formData.append("ingredients",ingredients)
 
       images.forEach((img,index) => img && formData.append(`image${index + 1}`,img))
 
@@ -45,6 +47,7 @@ const Add = ({token}) => {
         setPrice('')
         setOriginalPrice('')
         setFeatures('')
+        setIngredients('')
       } else {
         toast.error(response.data.message)
       }
@@ -83,6 +86,11 @@ const Add = ({token}) => {
         <div className='w-full'>
           <p className='mb-2'>Product description</p>
           <textarea onChange={(e)=>setDescription(e.target.value)} value={description} className='w-full max-w-[500px] px-3 py-2' type="text" placeholder='Write content here' required/>
+        </div>
+
+        <div className='w-full'>
+          <p className='mb-2'>Add Ingredients <span className='text-gray-400 text-xs'>(optional, one per line or comma separated)</span></p>
+          <textarea onChange={(e)=>setIngredients(e.target.value)} value={ingredients} maxLength={2000} rows={3} className='w-full max-w-[500px] px-3 py-2' placeholder='Aqua, Glycerin, Niacinamide, Salicylic Acid' />
         </div>
 
         <div className='w-full'>
