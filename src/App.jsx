@@ -19,25 +19,55 @@ axios.defaults.headers.common['Accept'] = 'application/json';
 export const backendUrl = import.meta.env.VITE_BACKEND_URL
 export const currency = 'Rs.'
 
+// Admin tokens expire after 12h. Reading `exp` up front means a dead token never
+// renders the panel as if it were signed in.
+const tokenIsExpired = (token) => {
+  try {
+    const payload = token.split('.')[1]
+    const padded = payload + '='.repeat((4 - payload.length % 4) % 4)
+    const { exp } = JSON.parse(atob(padded.replace(/-/g, '+').replace(/_/g, '/')))
+    return !exp || exp * 1000 <= Date.now()
+  } catch {
+    return true
+  }
+}
+
+let expireSession = () => {
+  localStorage.removeItem('token')
+  window.location.reload()
+}
+
+// Pages fetch in their own effects, which run before App's effects, so this has
+// to be registered at import time to catch the very first response.
+axios.interceptors.response.use((response) => {
+  const message = response.data?.message || ''
+  if (response.data?.success === false && /not authorized/i.test(message)) {
+    expireSession()
+  }
+  return response
+})
+
 const App = () => {
 
-  const [token, setToken] = useState(localStorage.getItem('token')?localStorage.getItem('token'):'');
+  const [token, setToken] = useState(() => {
+    const stored = localStorage.getItem('token') || ''
+    return stored && !tokenIsExpired(stored) ? stored : ''
+  })
 
   useEffect(()=>{
     localStorage.setItem('token',token)
   },[token])
 
-  // A stale token leaves every page toasting "Not Authorized Login Again" while
-  // the panel still renders as if signed in, so drop it and show the login form.
+  // A rejected token drops the session and shows the login form; the fallback
+  // covers the moment before this effect has run.
   useEffect(() => {
-    const interceptor = axios.interceptors.response.use((response) => {
-      const message = response.data?.message || ''
-      if (response.data?.success === false && /not authorized/i.test(message)) {
-        setToken('')
+    expireSession = () => setToken('')
+    return () => {
+      expireSession = () => {
+        localStorage.removeItem('token')
+        window.location.reload()
       }
-      return response
-    })
-    return () => axios.interceptors.response.eject(interceptor)
+    }
   }, [])
 
   return (
