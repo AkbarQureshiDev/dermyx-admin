@@ -56,8 +56,8 @@ const DeliveredOrders = ({ token }) => {
                 </div>
                 <p className='mt-3 mb-2 font-medium'>{order.address.firstName + ' ' + order.address.lastName}</p>
                 <div>
-                  <p>{order.address.street + ','}</p>
-                  <p>{order.address.city + ', ' + order.address.state + ', ' + order.address.country + ', ' + order.address.zipcode}</p>
+                  <p>{order.address.street}</p>
+                  <p>{[order.address.city, order.address.state, order.address.country, order.address.zipcode].filter(Boolean).join(', ')}</p>
                 </div>
                 <p>{order.address.phone}</p>
               </div>
