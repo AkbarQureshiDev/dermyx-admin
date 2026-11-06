@@ -56,8 +56,17 @@ const List = ({ token }) => {
     setEditImages(existing)
   }
 
+  const removeImage = (index) => {
+    setEditImages(prev => prev.map((slot, i) => i === index ? { url: null, file: null } : slot))
+  }
+
   const saveUpdate = async () => {
     try {
+      if (!editImages.some((slot) => slot.url || slot.file)) {
+        toast.error('Keep at least one product image')
+        return
+      }
+
       const formData = new FormData()
       formData.append('id', editItem._id)
       formData.append('price', editPrice)
@@ -140,22 +149,39 @@ const List = ({ token }) => {
 
             <div className='flex flex-col gap-3'>
               <div>
-                <label className='text-sm text-gray-600 mb-1 block'>Images <span className='text-gray-400'>(click a slot to replace it)</span></label>
+                <label className='text-sm text-gray-600 mb-1 block'>Images <span className='text-gray-400'>(click a slot to replace it, × to remove)</span></label>
                 <div className='grid grid-cols-4 gap-2'>
                   {editImages.map((slot, index) => (
-                    <label key={index} htmlFor={`edit-image${index + 1}`} className='cursor-pointer'>
-                      <img
-                        className='w-full aspect-square object-cover rounded border bg-gray-50'
-                        src={slot.file ? URL.createObjectURL(slot.file) : (slot.url || assets.upload_area)}
-                        alt=''
-                      />
-                      <input
-                        type='file'
-                        id={`edit-image${index + 1}`}
-                        hidden
-                        onChange={(e) => setEditImages(prev => prev.map((item, i) => i === index ? { url: item.url, file: e.target.files[0] } : item))}
-                      />
-                    </label>
+                    <div key={index} className='relative'>
+                      <label htmlFor={`edit-image${index + 1}`} className='cursor-pointer block'>
+                        <img
+                          className='w-full aspect-square object-cover rounded border bg-gray-50'
+                          src={slot.file ? URL.createObjectURL(slot.file) : (slot.url || assets.upload_area)}
+                          alt=''
+                        />
+                        <input
+                          type='file'
+                          id={`edit-image${index + 1}`}
+                          hidden
+                          onChange={(e) => {
+                            const file = e.target.files[0]
+                            e.target.value = ''
+                            if (file) setEditImages(prev => prev.map((item, i) => i === index ? { url: item.url, file } : item))
+                          }}
+                        />
+                      </label>
+                      {(slot.url || slot.file) && (
+                        <button
+                          type='button'
+                          onClick={() => removeImage(index)}
+                          title='Remove image'
+                          aria-label='Remove image'
+                          className='absolute top-1 right-1 w-5 h-5 rounded-full bg-black/80 text-white text-sm leading-none flex items-center justify-center hover:bg-black'
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>
