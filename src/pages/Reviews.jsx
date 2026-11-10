@@ -138,7 +138,10 @@ const Reviews = ({ token }) => {
               )}
               <div className='min-w-0'>
                 <p className='font-medium truncate'>{review.productName}</p>
-                <p className='text-xs text-gray-500'>{review.name}</p>
+                <p className='text-xs text-gray-500 truncate'>{review.name}</p>
+                {review.email && (
+                  <p className='text-xs text-gray-400 truncate' title={review.email}>{review.email}</p>
+                )}
                 {review.verified && (
                   <span className='text-[10px] font-semibold text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded-full'>
                     VERIFIED
@@ -147,7 +150,17 @@ const Reviews = ({ token }) => {
               </div>
             </div>
 
-            <p className='text-gray-600 line-clamp-3 md:line-clamp-none'>{review.comment}</p>
+            <div className='flex items-start gap-2'>
+              {review.image && (
+                <a href={review.image} target='_blank' rel='noreferrer' className='flex-shrink-0'>
+                  <img src={review.image} alt="Customer photo" className='w-12 h-12 object-cover rounded border' />
+                </a>
+              )}
+              <p className='text-gray-600 line-clamp-3 md:line-clamp-none'>
+                {review.title && <strong className='text-gray-900 block'>{review.title}</strong>}
+                {review.comment}
+              </p>
+            </div>
 
             <div><Stars rating={review.rating} /></div>
 
