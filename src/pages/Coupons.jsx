@@ -10,7 +10,7 @@ const Coupons = ({ token }) => {
   const [newCode, setNewCode] = useState('')
   const [newPercent, setNewPercent] = useState('')
   const [adding, setAdding] = useState(false)
-  const [removingCode, setRemovingCode] = useState('')
+  const [updatingCode, setUpdatingCode] = useState('')
 
   const fetchCoupons = async () => {
     if (!token) return
@@ -57,17 +57,12 @@ const Coupons = ({ token }) => {
     }
   }
 
-  const removeHandler = async (coupon) => {
-    const used = coupon.uses > 0
-      ? `It was used on ${coupon.uses} order${coupon.uses === 1 ? '' : 's'}; those orders keep their discount.`
-      : 'Shoppers will no longer be able to use it.'
-    if (!window.confirm(`Remove the code ${coupon.code}? ${used}`)) return
-
+  const toggleHandler = async (coupon) => {
     try {
-      setRemovingCode(coupon.code)
+      setUpdatingCode(coupon.code)
       const response = await axios.post(
-        backendUrl + '/api/coupon/remove',
-        { code: coupon.code },
+        backendUrl + '/api/coupon/status',
+        { code: coupon.code, active: !coupon.active },
         { headers: { token } }
       )
       if (response.data.success) {
@@ -79,7 +74,7 @@ const Coupons = ({ token }) => {
     } catch (error) {
       toast.error(error.message)
     } finally {
-      setRemovingCode('')
+      setUpdatingCode('')
     }
   }
 
@@ -100,6 +95,7 @@ const Coupons = ({ token }) => {
 
       <p className='text-xs text-gray-500 mb-4'>
         Usage counts every order placed with a code. Customers counts unique email addresses (phone when no email was given).
+        Deactivated codes stay listed with their history but cannot be used at checkout until they are activated again.
       </p>
 
       <div className='grid grid-cols-2 gap-3 mb-6 max-w-md'>
@@ -183,20 +179,32 @@ const Coupons = ({ token }) => {
               >
                 <div className='flex items-center gap-2'>
                   <span className='font-semibold text-gray-900'>{coupon.code}</span>
-                  {!coupon.active && (
-                    <span className='text-[10px] font-bold uppercase bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full'>Inactive</span>
-                  )}
+                  <span
+                    className={`text-[10px] font-bold uppercase border px-2 py-0.5 rounded-full ${
+                      coupon.active
+                        ? 'bg-green-50 text-green-700 border-green-200'
+                        : 'bg-gray-200 text-gray-600 border-gray-300'
+                    }`}
+                  >
+                    {coupon.active ? 'Active' : 'Inactive'}
+                  </span>
                 </div>
                 <p>{coupon.percent}%</p>
                 <p className='font-semibold'>{coupon.uses}</p>
                 <p>{coupon.customers}</p>
                 <p>{currency}{coupon.totalDiscount.toFixed(2)}</p>
                 <button
-                  onClick={() => removeHandler(coupon)}
-                  disabled={removingCode === coupon.code}
-                  className='justify-self-end border border-red-200 text-red-600 text-xs px-3 py-1 rounded hover:bg-red-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+                  onClick={() => toggleHandler(coupon)}
+                  disabled={updatingCode === coupon.code}
+                  className={`justify-self-end border text-xs px-3 py-1 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                    coupon.active
+                      ? 'border-amber-200 text-amber-700 hover:bg-amber-50'
+                      : 'border-green-200 text-green-700 hover:bg-green-50'
+                  }`}
                 >
-                  {removingCode === coupon.code ? 'Removing…' : 'Remove'}
+                  {updatingCode === coupon.code
+                    ? 'Saving…'
+                    : coupon.active ? 'Deactivate' : 'Activate'}
                 </button>
               </div>
             ))
